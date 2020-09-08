@@ -1,0 +1,14 @@
+#!/bin/sh
+app="wspush"
+
+case $1 in 
+    server)
+        go run example/server/main.go
+        ;;
+    client)
+        go run example/client/main.go
+        ;;
+    *)
+        echo "do nothing"
+        ;;
+esac
