@@ -2,10 +2,11 @@ package redishub
 
 import (
 	"context"
-	"encoding/json"
 	"log"
+	"strings"
 
 	redis "github.com/go-redis/redis/v8"
+	"github.com/gorilla/websocket"
 
 	"github.com/9d77v/wspush/hub"
 )
@@ -36,13 +37,23 @@ func (h *RedisHub) SendData() {
 	ch := h.PubSub.Channel()
 	for msg := range ch {
 		for k, v := range h.ClientMap {
-			writeData := make([]map[string]interface{}, 0)
-			json.Unmarshal([]byte(msg.Payload), &writeData)
 			if v[msg.Channel] {
-				err := k.WriteJSON(writeData)
+				err := k.WriteMessage(websocket.BinaryMessage, []byte(msg.Payload))
 				if err != nil {
 					log.Println("websocket write error:", err)
 					continue
+				}
+			}
+			for sub := range v {
+				if strings.Contains(sub, "*") {
+					matchStr := strings.Trim(sub, "*")
+					if strings.Contains(msg.Channel, matchStr) {
+						err := k.WriteMessage(websocket.BinaryMessage, []byte(msg.Payload))
+						if err != nil {
+							log.Println("websocket write error:", err)
+							continue
+						}
+					}
 				}
 			}
 		}
