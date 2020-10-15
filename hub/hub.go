@@ -201,7 +201,9 @@ func (h *Hub) HandlerDynamicChannel(prefix string, checkToken func(token string)
 			channels := strings.Split(string(message), ";")
 			newChannels := make([]string, 0, len(channels))
 			for _, v := range channels {
-				newChannels = append(newChannels, prefix+v)
+				if v != "" {
+					newChannels = append(newChannels, prefix+v)
+				}
 			}
 			h.AddClient(newChannels, c)
 			log.Println(h.channelMap)
