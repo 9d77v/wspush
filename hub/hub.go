@@ -179,11 +179,16 @@ var upgrader = websocket.Upgrader{
 }
 
 //HandlerDynamicChannel 向websocket推送mq数据,可以变更channel
-func (h *Hub) HandlerDynamicChannel() func(w http.ResponseWriter, r *http.Request) {
+func (h *Hub) HandlerDynamicChannel(prefix string, checkToken func(token string) bool) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		accessToken := r.Header.Get("Authorization")
+		if checkToken != nil && !checkToken(accessToken) {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Print("upgrade:", err)
+			log.Println("upgrade:", err)
 			return
 		}
 		defer c.Close()
@@ -194,7 +199,11 @@ func (h *Hub) HandlerDynamicChannel() func(w http.ResponseWriter, r *http.Reques
 				break
 			}
 			channels := strings.Split(string(message), ";")
-			h.AddClient(channels, c)
+			newChannels := make([]string, 0, len(channels))
+			for _, v := range channels {
+				newChannels = append(newChannels, prefix+v)
+			}
+			h.AddClient(newChannels, c)
 			log.Println(h.channelMap)
 			log.Println(h.ClientMap)
 		}

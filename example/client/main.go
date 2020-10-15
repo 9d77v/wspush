@@ -43,7 +43,7 @@ func main() {
 		}
 	}()
 
-	err = c.WriteMessage(websocket.TextMessage, []byte("bbb.*"))
+	err = c.WriteMessage(websocket.TextMessage, []byte("*"))
 	if err != nil {
 		log.Println("write:", err)
 		return
