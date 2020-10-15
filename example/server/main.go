@@ -8,7 +8,7 @@ import (
 )
 
 func checkToken(token string) bool {
-	return true
+	return token == "xxxx"
 }
 
 func main() {

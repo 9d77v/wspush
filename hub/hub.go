@@ -181,7 +181,7 @@ var upgrader = websocket.Upgrader{
 //HandlerDynamicChannel 向websocket推送mq数据,可以变更channel
 func (h *Hub) HandlerDynamicChannel(prefix string, checkToken func(token string) bool) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		accessToken := r.Header.Get("Authorization")
+		accessToken := r.URL.Query().Get("token")
 		if checkToken != nil && !checkToken(accessToken) {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
