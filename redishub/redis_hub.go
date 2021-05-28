@@ -18,7 +18,7 @@ type RedisHub struct {
 }
 
 //NewHub Hub初始化
-func NewHub(redis *redis.Client) *RedisHub {
+func NewHub(redis redis.UniversalClient) *RedisHub {
 	defer log.Println("server start successed.")
 	var ctx = context.Background()
 	pubsub := redis.PSubscribe(ctx, "ping")

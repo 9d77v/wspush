@@ -1,6 +1,8 @@
 package redishub
 
 import (
+	"strings"
+
 	"github.com/9d77v/wspush/utils"
 	redis "github.com/go-redis/redis/v8"
 )
@@ -13,10 +15,18 @@ var (
 )
 
 func init() {
-	r := redis.NewClient(&redis.Options{
-		Addr:     redisAddress,
-		Password: redisPassword,
-		DB:       0, // use default DB
-	})
+	var r redis.UniversalClient
+	addresses := strings.Split(redisAddress, ",")
+	if len(addresses) == 1 {
+		r = redis.NewClient(&redis.Options{
+			Addr:     addresses[0],
+			Password: redisPassword,
+		})
+	} else {
+		r = redis.NewClusterClient(&redis.ClusterOptions{
+			Addrs:    addresses,
+			Password: redisPassword,
+		})
+	}
 	Hub = NewHub(r)
 }
