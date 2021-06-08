@@ -5,20 +5,31 @@ import (
 	"log"
 	"strings"
 
-	redis "github.com/go-redis/redis/v8"
+	"github.com/9d77v/go-pkg/cache/redis"
+	v8 "github.com/go-redis/redis/v8"
+
 	"github.com/gorilla/websocket"
 
 	"github.com/9d77v/wspush/hub"
 )
 
+var (
+	//Hub ...
+	Hub *RedisHub
+)
+
+func init() {
+	Hub = NewHub(redis.GetClient())
+}
+
 //RedisHub ..
 type RedisHub struct {
 	*hub.Hub
-	PubSub *redis.PubSub
+	PubSub *v8.PubSub
 }
 
 //NewHub Hub初始化
-func NewHub(redis redis.UniversalClient) *RedisHub {
+func NewHub(redis *redis.Client) *RedisHub {
 	defer log.Println("server start successed.")
 	var ctx = context.Background()
 	pubsub := redis.PSubscribe(ctx, "ping")
